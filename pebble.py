@@ -11,8 +11,10 @@ from Shelve_Data import Shelve_Data
 ########################### Constants ###########################
 AGE = 23
 AUTHOR = "Clayton Kuchta"
-IP_ADDRESS = "172.30.37.238"
-RABBITMQ_URL = "amqp://claytonkara:netapps@"+IP_ADDRESS+":5672/T8"
+#IP_ADDRESS = "172.30.37.238"
+#RABBITMQ_URL = "amqp://claytonkara:netapps@"+IP_ADDRESS+":5672/T8"
+IP_ADDRESS = "172.30.39.155"
+RABBITMQ_URL = "amqp://clayton:clayton@"+IP_ADDRESS+":5672/team_8"
 QUEUE_NAME = "team_8"
 DB_NAME = "pebble_db"
 TEAM_NAME = "Team08"
