@@ -11,11 +11,22 @@ from Shelve_Data import Shelve_Data
 ########################### Constants ###########################
 AGE = 23
 AUTHOR = "Clayton Kuchta"
+
+# Kara's RabbitMQ
 #IP_ADDRESS = "172.30.37.238"
-#RABBITMQ_URL = "amqp://claytonkara:netapps@"+IP_ADDRESS+":5672/T8"
+#VHOST = "T8"
+#USER = "claytonkara"
+#PASSWORD = "netapps"
+#QUEUE_NAME = "team_8"
+
+# Clayton's RabbitMQ
 IP_ADDRESS = "172.30.39.155"
-RABBITMQ_URL = "amqp://clayton:clayton@"+IP_ADDRESS+":5672/team_8"
+VHOST = "team_8"
+USER = "clayton"
+PASSWORD = "clayton"
 QUEUE_NAME = "team_8"
+
+RABBITMQ_URL = "amqp://" + USER + ":" + PASSWORD + "@" + IP_ADDRESS + ":5672/" + VHOST
 DB_NAME = "pebble_db"
 TEAM_NAME = "Team08"
 EPOCH_SECONDS = time.mktime(time.localtime())
