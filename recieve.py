@@ -1,6 +1,6 @@
 #!/usr/bin/env python 
 import pika
-
+import json
 
 #####################################################################
 ################## CALLBACK SERVER FUNCTIONS ########################
@@ -12,7 +12,22 @@ def on_request(ch, method, props, body):
     
     return_properties = pika.BasicProperties(correlation_id=props.correlation_id)
     
-    ch.basic_publish(exchange='', routing_key=props.reply_to, properties=return_properties, body=body)
+
+    ##### KARA WHEN YOU SEND DTAT BACK SEND IT IN THIS FORMAT ########
+    # FIRST MAKE A QUIRY FOR THE DATA (in this case I am quirying 
+    query_data_one = json.loads(body)
+    query_data_two = json.loads(body)
+    query_data_three = json.loads(body)
+    query_data_four = json.loads(body)
+
+    # SECOND MAKE A LIST OF THE DICTIONARY (if no quereys found make a empty list
+    send_message_list_of_dic = [query_data_one, query_data_two, query_data_three, query_data_four]
+    #send_message_list_of_dic = []
+    
+    # FINALLY DO A JSON.DUMPS ON THE LIST OF DICTIONARIES AND THEN SEND IT
+    send_message_json = json.dumps(send_message_list_of_dic)
+    
+    ch.basic_publish(exchange='', routing_key=props.reply_to, properties=return_properties, body=send_message_json)
     
     ch.basic_ack(delivery_tag=method.delivery_tag)
 ################## CALLBACK SERVER FUNCTIONS ########################

@@ -27,7 +27,7 @@ PASSWORD = "clayton"
 QUEUE_NAME = "team_8"
 
 RABBITMQ_URL = "amqp://" + USER + ":" + PASSWORD + "@" + IP_ADDRESS + ":5672/" + VHOST
-DB_NAME = "pebble_db"
+DB_NAME = "pebble_db.db"
 TEAM_NAME = "Team08"
 EPOCH_SECONDS = time.mktime(time.localtime())
 MSG_ID = TEAM_NAME + "_" + str(EPOCH_SECONDS)
@@ -110,7 +110,6 @@ if args.action ==  "pull":
     json_data = json.dumps(data)
     print "PULL:\n\nPulling for this data: \n\n" + json_data + "\n\n"
     response = rpc_client.call(json_data, QUEUE_NAME, MSG_ID)
-    print "RESPONSE FROM SERVER: " + response + "\n\n"
 
 
 elif args.action == "pullr":
@@ -128,7 +127,6 @@ elif args.action == "pullr":
     json_data = json.dumps(data)
     print "PULLR:\n\nPulling for this data: \n\n" + json_data + "\n\n"
     response = rpc_client.call(json_data, QUEUE_NAME, MSG_ID)
-    print "RESPONSE FROM SERVER: " + response + "\n\n"
 
 elif args.action == "push":
     # User wants to do a push
@@ -155,7 +153,6 @@ elif args.action == "push":
 
     print "PUSH:\n\nPushing this data: \n\n" + json_data + "\n\n"
     response = rpc_client.call(json_data, QUEUE_NAME, MSG_ID)
-    print "RESPONSE FROM SERVER: " + response + "\n\n"
 
 else:
     # Did not enter an action so print the help
@@ -166,16 +163,21 @@ else:
 #################################################################
 
 # Store information into database
-if response:
-    # There was a valid json response from server
-    response_dictionary = json.loads(response)
-    key = str(response_dictionary['MsgID'])
-    pebble_database.push(response, key)
-    print "Response from the database: " + response + "\n\n"
+# There was a valid json response from server
+response_list = json.loads(response)
+
+
+if len(response_list):
+    print "There were " +  str(len(response_list)) + " JSON objects sent back:\n\n"
+    for dic in response_list:
+        dic_dump = json.dumps(dic, sort_keys=True, indent=4)
+        print dic_dump
+        key = str(dic['MsgID'])
+        print "\n"
+        pebble_database.push(dic, key)
+    #pebble_database.push(response, key)
+    #print "Response from the database: " + response + "\n\n"
 else:
-    # Blank response from DB
-    print "No Queries found in bottle\n\n"
-
-
+    print "There was no quiry found in the bottle: \n" + str(response) + "\n"
 # Close the database and server
 pebble_database.close()
