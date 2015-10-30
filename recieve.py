@@ -50,7 +50,11 @@ def rabbitmq_consume_basic( channel, queue_name ):
 
 #################################################################
 ########################### Constants ##########################
-RABBITMQ_URL = "amqp://clayton:clayton@172.30.39.155:5672/team_8"
+IP_ADDRESS = "172.30.39.155"
+VHOST = "team_8"
+USER = "clayton"
+PASSWORD = "clayton"
+RABBITMQ_URL = "amqp://" + USER + ":" + PASSWORD + "@" + IP_ADDRESS + ":5672/" + VHOST
 QUEUE_NAME = "team_8"
 ########################### Constants ##########################
 #################################################################
