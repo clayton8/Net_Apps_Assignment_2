@@ -13,18 +13,18 @@ AGE = 23
 AUTHOR = "Clayton Kuchta"
 
 # Kara's RabbitMQ
-#IP_ADDRESS = "172.30.37.238"
-#VHOST = "T8"
-#USER = "claytonkara"
-#PASSWORD = "netapps"
-#QUEUE_NAME = "team_8"
+IP_ADDRESS = "172.16.102.124"
+VHOST = "T8"
+USER = "claytonkara"
+PASSWORD = "netapps"
+QUEUE_NAME = "team_8"
 
 # Clayton's RabbitMQ
-IP_ADDRESS = "172.30.39.155"
-VHOST = "team_8"
-USER = "clayton"
-PASSWORD = "clayton"
-QUEUE_NAME = "team_8"
+#IP_ADDRESS = "172.30.39.155"
+#VHOST = "team_8"
+#USER = "clayton"
+#PASSWORD = "clayton"
+#QUEUE_NAME = "team_8"
 
 RABBITMQ_URL = "amqp://" + USER + ":" + PASSWORD + "@" + IP_ADDRESS + ":5672/" + VHOST
 DB_NAME = "pebble_db.db"
