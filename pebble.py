@@ -140,7 +140,8 @@ if args.action ==  "pull":
     if args.Qm:
         data['Message'] = args.Qm
     json_data = json.dumps(data)
-    print "PULL:\n\nPulling for this data: \n\n" + json_data + "\n\n"
+    pretty_json = json.dumps(data, sort_keys=True, indent=4)
+    print "PULL:\nPulling for this data: \n\n" + pretty_json + "\n\n"
     response = rpc_client.call(json_data, QUEUE_NAME, MSG_ID)
 
 
@@ -157,7 +158,8 @@ elif args.action == "pullr":
     if args.Qm:
         data['Message'] = args.Qm
     json_data = json.dumps(data)
-    print "PULLR:\n\nPulling for this data: \n\n" + json_data + "\n\n"
+    pretty_json = json.dumps(data, sort_keys=True, indent=4)
+    print "PULLR:\nPulling for this data: \n\n" + pretty_json + "\n\n"
     response = rpc_client.call(json_data, QUEUE_NAME, MSG_ID)
 
 elif args.action == "push":
@@ -182,8 +184,8 @@ elif args.action == "push":
         pebble_database.close()
 
     json_data = json.dumps(data)
-
-    print "PUSH:\n\nPushing this data: \n\n" + json_data + "\n\n"
+    pretty_json = json.dumps(data, sort_keys=True, indent=4)
+    print "PUSH:\nPushing this data: \n\n" + pretty_json + "\n\n"
     response = rpc_client.call(json_data, QUEUE_NAME, MSG_ID)
 
 else:

@@ -1,6 +1,7 @@
 import avahi
 import dbus
 
+# This code is derived from http://stackoverflow.com/questions/3430245/how-to-develop-an-avahi-client-server
 
 
 class Zeroconf_Service:
