@@ -3,8 +3,12 @@ import json
 import pika
 import shelve
 import time
+from zeroconf import *
 from Basic_Rpc_Client import Basic_Rpc_Client
 from Shelve_Data import Shelve_Data
+from Service_Listener import Service_Listener
+
+
 
 
 #################################################################
@@ -12,21 +16,51 @@ from Shelve_Data import Shelve_Data
 AGE = 23
 AUTHOR = "Clayton Kuchta"
 
-# Kara's RabbitMQ
-IP_ADDRESS = "172.16.102.124"
-VHOST = "T8"
-USER = "claytonkara"
-PASSWORD = "netapps"
-QUEUE_NAME = "team_8"
 
-# Clayton's RabbitMQ
-#IP_ADDRESS = "172.30.39.155"
-#VHOST = "team_8"
-#USER = "clayton"
-#PASSWORD = "clayton"
+
+##################### BACKUP PLAN ###############################
+# Kara's RabbitMQ
+#IP_ADDRESS = "172.16.102.124"
+#VHOST = "T8"
+#USER = "claytonkara"
+#PASSWORD = "netapps"
 #QUEUE_NAME = "team_8"
 
-RABBITMQ_URL = "amqp://" + USER + ":" + PASSWORD + "@" + IP_ADDRESS + ":5672/" + VHOST
+# Clayton's RabbitMQ
+#IP_ADDRESS = "172.16.102.136"
+VHOST = "team_8"
+USER = "clayton"
+PASSWORD = "clayton"
+QUEUE_NAME = "team_8"
+#RABBITMQ_URL = "amqp://" + USER + ":" + PASSWORD + "@" + IP_ADDRESS + ":5672/" + VHOST
+#print "\nURL BEFORE" + RABBITMQ_URL + "\n\n"
+##################### BACKUP PLAN ###############################
+
+
+###################### Zeroconfig ###############################
+
+print "\n\nLooking for a service\n\n"
+r = Zeroconf()
+type_connect = "_http._tcp.local."
+listener = Service_Listener()
+
+browser = ServiceBrowser(r, type_connect, listener=listener)
+while listener.connection_found == False:
+    i = 1
+
+connect_browser = listener.connection_info
+#r.close()
+json_pretty = json.dumps(connect_browser, sort_keys=True, indent=4)
+print "\n\nFound Team 8 Connetion Connecting:\n", json_pretty, "\n\n"
+
+###################### Zeroconfig ###############################
+
+
+
+RABBITMQ_URL = "amqp://" + USER + ":" + PASSWORD + "@" + connect_browser['IP'] + ":" + str(connect_browser['PORT']) + "/" + VHOST
+
+print "URL: " + RABBITMQ_URL + "\n\n"
+
 DB_NAME = "pebble_db.db"
 TEAM_NAME = "Team08"
 EPOCH_SECONDS = time.mktime(time.localtime())
@@ -168,13 +202,24 @@ response_list = json.loads(response)
 
 
 if len(response_list):
+    
+    key = MSG_ID
     print "There were " +  str(len(response_list)) + " JSON objects sent back:\n\n"
+    response_dump = json.dumps(response_list, sort_keys=True, indent=4)
+    print response_dump
+    print
+    print "Storing information with key: " + key
+    
+    pebble_database.push(response_list, key)
+    """
     for dic in response_list:
         dic_dump = json.dumps(dic, sort_keys=True, indent=4)
         print dic_dump
         key = str(dic['MsgID'])
         print "\n"
         pebble_database.push(dic, key)
+    """
+    
     #pebble_database.push(response, key)
     #print "Response from the database: " + response + "\n\n"
 else:
