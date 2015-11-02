@@ -16,8 +16,6 @@ from Service_Listener import Service_Listener
 AGE = 23
 AUTHOR = "Clayton Kuchta"
 
-
-
 ##################### BACKUP PLAN ###############################
 # Kara's RabbitMQ
 #IP_ADDRESS = "172.16.102.124"
