@@ -3,6 +3,10 @@ import socket
 import time
 import json
 
+# This code is derived from https://github.com/jstasiak/python-zeroconf/blob/master/examples/browser.py
+# but is not exactly the same.
+
+
 class Service_Listener(object):
     def __init__(self):
         self.r = Zeroconf()

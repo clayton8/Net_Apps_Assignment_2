@@ -1,6 +1,8 @@
 import pika
 
 
+# This code is derived from https://www.rabbitmq.com/tutorials/tutorial-six-python.html
+
 class Basic_Rpc_Client(object):
     def __init__(self, url):
         """Connects to a rabbitmq server"""

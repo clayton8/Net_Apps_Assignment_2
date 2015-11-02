@@ -4,6 +4,8 @@ import json
 import shelve
 import RPi.GPIO as GPIO
 import ast
+from Zeroconf_Service import Zeroconf_Service
+
 
 ################# LED/GPIO ###############
 def turnOn(LED):
@@ -234,8 +236,11 @@ def on_request(ch, method, props, body):
 
 #####################################################################
 ################## SERVER SETUP FUNCTIONS ###########################
-def connect_rabbitmq_url( url, queue_name ):
+def connect_rabbitmq_url( url, queue_name, port, service_name ):
     """Connects to a rabbitmq server"""
+    service = Zeroconf_Service(name=service_name, port=port)
+    service.publish()
+    print
     parameters = pika.URLParameters(url)
     connection = pika.BlockingConnection(parameters)
     channel = connection.channel()
@@ -261,22 +266,30 @@ def rabbitmq_consume_basic( channel, queue_name ):
 
 #################################################################
 ########################### Constants ##########################
-IP_ADDRESS = "172.16.102.124"
-VHOST = "T8"
-USER = "claytonkara"
-PASSWORD = "netapps"
-RABBITMQ_URL = "amqp://" + USER + ":" + PASSWORD + "@" + IP_ADDRESS + ":5672/" + VHOST
+IP_ADDRESS = "172.16.102.136"
+#VHOST = "T8"
+#USER = "claytonkara"
+#PASSWORD = "netapps"
+
+VHOST = "team_8"
+USER = "clayton"
+PASSWORD = "clayton"
+
+PORT = 5672
+RABBITMQ_URL = "amqp://" + USER + ":" + PASSWORD + "@" + IP_ADDRESS + ":"+str(PORT)+ "/" + VHOST
 QUEUE_NAME = "team_8"
+SERVICE_NAME = "Team 8 Server"
+
 ########################### Constants ##########################
 #################################################################
 
 
 
 
-channel = connect_rabbitmq_url( RABBITMQ_URL, QUEUE_NAME)
+channel = connect_rabbitmq_url( RABBITMQ_URL, QUEUE_NAME, PORT, SERVICE_NAME)
 
 print ' [*] Waiting for messages. To exit press CTRL+C'
-rabbitmq_consume_rpc( channel, QUEUE_NAME )
+rabbitmq_consume_rpc( channel, QUEUE_NAME,  )
 
 #rabbitmq_consume_basic( channel, QUEUE_NAME )
 
