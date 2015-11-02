@@ -182,7 +182,6 @@ elif args.action == "push":
         parser.print_help()
         exit()
         pebble_database.close()
-
     json_data = json.dumps(data)
     pretty_json = json.dumps(data, sort_keys=True, indent=4)
     print "PUSH:\nPushing this data: \n\n" + pretty_json + "\n\n"
@@ -209,19 +208,7 @@ if len(response_list):
     print response_dump
     print
     print "Storing information with key: " + key
-    
     pebble_database.push(response_list, key)
-    """
-    for dic in response_list:
-        dic_dump = json.dumps(dic, sort_keys=True, indent=4)
-        print dic_dump
-        key = str(dic['MsgID'])
-        print "\n"
-        pebble_database.push(dic, key)
-    """
-    
-    #pebble_database.push(response, key)
-    #print "Response from the database: " + response + "\n\n"
 else:
     print "There was no quiry found in the bottle: \n" + str(response) + "\n"
 # Close the database and server
