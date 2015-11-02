@@ -93,56 +93,60 @@ def on_request(ch, method, props, body):
 
             returnlist = []
             rlcount = 0
-
             klist = list(s.keys())
 
             for i in range(0,len(klist)):
+                
                 r = s[klist[i]]
                 testdict = ast.literal_eval(json.dumps(r))
-                #test for qualities
-                if testdict['Author'] == author:
-                    #put into list to return to client
+
+                if age == '' and message == '' and subject == '' and author == '':
                     returnlist.append(testdict)
-                    rlcount = 1
-                    count = count - 1
-                    del s[klist[i]]
-                if testdict['Subject'] == subject:
-                    #put into list to return to client
-                    returnlist.append(testdict)
-                    rlcount = 1
-                    count = count - 1
-                    del s[klist[i]]
-                if testdict['Message'] == message:
-                    #put into list to return to client
-                    returnlist.append(testdict)
-                    count = count - 1
-                    del s[klist[i]]
-                if testdict['Age'] == age:
-                    returnlist.append(testdict)
-                    count = count - 1
-                    del s[klist[i]]
-                greater = '>'
-                less = '<'
-                if greater in age:
-                    agefix = age.replace(">","")
-                    a = int(agefix)
-                    storea = testdict['Age']
-                    istorea = int(storea)
-                    if istorea > a:
+                else:  
+                    #test for qualities
+                    if testdict['Author'] == author:
+                        #put into list to return to client
                         returnlist.append(testdict)
-                        del s[klist[i]]
+                        rlcount = 1
                         count = count - 1
-                if less in age:
-                    agefix = age.replace("<","")
-                    a = int(agefix)
-                    storea = testdict['Age']
-                    istorea = int(storea)
-                    if istorea < a:
+                        del s[klist[i]]
+                    if testdict['Subject'] == subject:
+                        #put into list to return to client
                         returnlist.append(testdict)
-                        del s[klist[i]]
+                        rlcount = 1
                         count = count - 1
+                        del s[klist[i]]
+                    if testdict['Message'] == message:
+                        #put into list to return to client
+                        returnlist.append(testdict)
+                        count = count - 1
+                        del s[klist[i]]
+                    if testdict['Age'] == int(age):
+                        returnlist.append(testdict)
+                        count = count - 1
+                        del s[klist[i]]
+                    greater = '>'
+                    less = '<'
+                    if greater in age:
+                        agefix = age.replace(">","")
+                        a = int(agefix)
+                        storea = testdict['Age']
+                        istorea = int(storea)
+                        if istorea > a:
+                            returnlist.append(testdict)
+                            del s[klist[i]]
+                            count = count - 1
+                    if less in age:
+                        agefix = age.replace("<","")
+                        a = int(agefix)
+                        storea = testdict['Age']
+                        istorea = int(storea)
+                        if istorea < a:
+                            returnlist.append(testdict)
+                            del s[klist[i]]
+                            count = count - 1
                     
-            forCounting(count)
+                forCounting(count)
         finally:
               s.close()
 
@@ -162,44 +166,54 @@ def on_request(ch, method, props, body):
             for i in range(0,len(klist)):
                 r = s[klist[i]]
                 testdict = ast.literal_eval(json.dumps(r))
-                #test for qualities
-                if testdict['Author'] == author:
-                    #put into list to return to client
+                if age == '' and message == '' and subject == '' and author == '':
                     returnlist.append(testdict)
-                    rlcount = 1
-                    count = count - 1
-                if testdict['Subject'] == subject:
-                    #put into list to return to client
-                    returnlist.append(testdict)
-                    rlcount = 1
-                    count = count - 1
-                if testdict['Message'] == message:
-                    #put into list to return to client
-                    returnlist.append(testdict)
-                    count = count - 1
-                if testdict['Age'] == age:
-                    returnlist.append(testdict)
-                    count = count - 1
-                greater = '>'
-                less = '<'
-                if greater in age:
-                    agefix = age.replace(">","")
-                    a = int(agefix)
-                    storea = testdict['Age']
-                    istorea = int(storea)
-                    if istorea > a:
+                else:
+                    #test for qualities
+                    if testdict['Author'] == author:
+                        #put into list to return to client
+                        returnlist.append(testdict)
+                        rlcount = 1
+                        count = count - 1
+                        del s[klist[i]]
+                    if testdict['Subject'] == subject:
+                        #put into list to return to client
+                        returnlist.append(testdict)
+                        rlcount = 1
+                        count = count - 1
+                        del s[klist[i]]
+                    if testdict['Message'] == message:
+                        #put into list to return to client
                         returnlist.append(testdict)
                         count = count - 1
-                if less in age:
-                    agefix = age.replace("<","")
-                    a = int(agefix)
-                    storea = testdict['Age']
-                    istorea = int(storea)
-                    if istorea < a:
+                        del s[klist[i]]
+                    if testdict['Age'] == int(age):
                         returnlist.append(testdict)
                         count = count - 1
+                        del s[klist[i]]
+                    greater = '>'
+                    less = '<'
+                    if greater in age:
+                        agefix = age.replace(">","")
+                        a = int(agefix)
+                        storea = testdict['Age']
+                        istorea = int(storea)
+                        if istorea > a:
+                            returnlist.append(testdict)
+                            del s[klist[i]]
+                            count = count - 1
+                    if less in age:
+                        agefix = age.replace("<","")
+                        a = int(agefix)
+                        storea = testdict['Age']
+                        istorea = int(storea)
+                        if istorea < a:
+                            returnlist.append(testdict)
+                            del s[klist[i]]
+                            count = count - 1
 
-            forCounting(count)
+                forCounting(count)
+
         finally:
               s.close()
               print "done copy"
