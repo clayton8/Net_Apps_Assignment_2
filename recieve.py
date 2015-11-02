@@ -84,49 +84,34 @@ def on_request(ch, method, props, body):
              returnlist.append(dict)
              s.close()
     elif dict['Action'] == "pull":
-        if count == 0:
-            print "Nothing to pull!"
-            
+        #copy instead of remove
         try:
             age = dict.get('Age','')
             message = dict.get('Message','')
             subject = dict.get('Subject','')
             author = dict.get('Author','')
-
             returnlist = []
-            rlcount = 0
+
             klist = list(s.keys())
 
             for i in range(0,len(klist)):
-                
                 r = s[klist[i]]
                 testdict = ast.literal_eval(json.dumps(r))
-
-                if age == '' and message == '' and subject == '' and author == '':
+                if (age == '' and message == '' and subject == '' and author == ''):
                     returnlist.append(testdict)
-                else:  
+                    del s[klist[i]]
+                else:
+                    add_me = True
                     #test for qualities
-                    if testdict['Author'] == author:
+                    if (testdict['Author'] != author and  author != ''):    
+                       #put into list to return to client
+                        add_me = False
+                    if (testdict['Subject'] != subject and subject != ''):
                         #put into list to return to client
-                        returnlist.append(testdict)
-                        rlcount = 1
-                        count = count - 1
-                        del s[klist[i]]
-                    if testdict['Subject'] == subject:
+                        add_me = False
+                    if (testdict['Message'] != message and message != ''):
                         #put into list to return to client
-                        returnlist.append(testdict)
-                        rlcount = 1
-                        count = count - 1
-                        del s[klist[i]]
-                    if testdict['Message'] == message:
-                        #put into list to return to client
-                        returnlist.append(testdict)
-                        count = count - 1
-                        del s[klist[i]]
-                    if testdict['Age'] == int(age):
-                        returnlist.append(testdict)
-                        count = count - 1
-                        del s[klist[i]]
+                        add_me = False
                     greater = '>'
                     less = '<'
                     if greater in age:
@@ -134,24 +119,27 @@ def on_request(ch, method, props, body):
                         a = int(agefix)
                         storea = testdict['Age']
                         istorea = int(storea)
-                        if istorea > a:
-                            returnlist.append(testdict)
-                            del s[klist[i]]
-                            count = count - 1
-                    if less in age:
+                        if istorea <= a:
+                            add_me = False
+                    elif less in age:
                         agefix = age.replace("<","")
                         a = int(agefix)
                         storea = testdict['Age']
                         istorea = int(storea)
-                        if istorea < a:
-                            returnlist.append(testdict)
-                            del s[klist[i]]
-                            count = count - 1
+                        if istorea >= a:
+                            add_me = False
+                    elif age != '' and testdict['Age'] != int(age):
+                        add_me = False
                     
+                    if add_me:
+                        del s[klist[i]]
+                        count = count - 1
+                        returnlist.append(testdict)
+                
                 forCounting(count)
+
         finally:
               s.close()
-
     elif dict['Action'] == "pullr":
         #copy instead of remove
         try:
@@ -159,40 +147,27 @@ def on_request(ch, method, props, body):
             message = dict.get('Message','')
             subject = dict.get('Subject','')
             author = dict.get('Author','')
-
             returnlist = []
-            rlcount = 0
 
             klist = list(s.keys())
 
             for i in range(0,len(klist)):
                 r = s[klist[i]]
                 testdict = ast.literal_eval(json.dumps(r))
-                if age == '' and message == '' and subject == '' and author == '':
+                if (age == '' and message == '' and subject == '' and author == ''):
                     returnlist.append(testdict)
                 else:
+                    add_me = True
                     #test for qualities
-                    if testdict['Author'] == author:
+                    if (testdict['Author'] != author and  author != ''):    
+                       #put into list to return to client
+                        add_me = False
+                    if (testdict['Subject'] != subject and subject != ''):
                         #put into list to return to client
-                        returnlist.append(testdict)
-                        rlcount = 1
-                        count = count - 1
-                        del s[klist[i]]
-                    if testdict['Subject'] == subject:
+                        add_me = False
+                    if (testdict['Message'] != message and message != ''):
                         #put into list to return to client
-                        returnlist.append(testdict)
-                        rlcount = 1
-                        count = count - 1
-                        del s[klist[i]]
-                    if testdict['Message'] == message:
-                        #put into list to return to client
-                        returnlist.append(testdict)
-                        count = count - 1
-                        del s[klist[i]]
-                    if testdict['Age'] == int(age):
-                        returnlist.append(testdict)
-                        count = count - 1
-                        del s[klist[i]]
+                        add_me = False
                     greater = '>'
                     less = '<'
                     if greater in age:
@@ -200,21 +175,22 @@ def on_request(ch, method, props, body):
                         a = int(agefix)
                         storea = testdict['Age']
                         istorea = int(storea)
-                        if istorea > a:
-                            returnlist.append(testdict)
-                            del s[klist[i]]
-                            count = count - 1
-                    if less in age:
+                        if istorea <= a:
+                            add_me = False
+                    elif less in age:
                         agefix = age.replace("<","")
                         a = int(agefix)
                         storea = testdict['Age']
                         istorea = int(storea)
-                        if istorea < a:
-                            returnlist.append(testdict)
-                            del s[klist[i]]
-                            count = count - 1
-
-                forCounting(count)
+                        if istorea >= a:
+                            add_me = False
+                    elif age != '' and testdict['Age'] != int(age):
+                        add_me = False
+                    
+                    if add_me:
+                        returnlist.append(testdict)
+                
+                #forCounting(count)
 
         finally:
               s.close()
