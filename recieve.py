@@ -3,7 +3,7 @@ import pika
 import json
 import shelve
 import RPi.GPIO as GPIO
-
+import ast
 
 ################# LED/GPIO ###############
 def turnOn(LED):
@@ -18,29 +18,31 @@ LED3 = 15
 
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(int(LED0), GPIO.OUT)
-GPIO.setup(int(LED0), GPIO.LOW)
 GPIO.setup(int(LED1), GPIO.OUT)
-GPIO.setup(int(LED1), GPIO.LOW)
 GPIO.setup(int(LED2), GPIO.OUT)
-GPIO.setup(int(LED2), GPIO.LOW)
 GPIO.setup(int(LED3), GPIO.OUT)
-GPIO.setup(int(LED3), GPIO.LOW)
+GPIO.output(int(LED0), GPIO.LOW)
+GPIO.output(int(LED1), GPIO.LOW)
+GPIO.output(int(LED2), GPIO.LOW)
+GPIO.output(int(LED3), GPIO.LOW)
 
 def forCounting(count):
     c = bin(count)
-    if c[0] == "1":
+    counter = c.replace("0b","")
+    counter = counter.zfill(4)
+    if counter[3] == "1":
         turnOn(LED0)
     else:
         turnOff(LED0)
-    if c[1] == "1":
+    if counter[2] == "1":
         turnOn(LED1)
     else:
         turnOff(LED1)
-    if c[2] == "1":
+    if counter[1] == "1":
         turnOn(LED2)
     else:
         turnOff(LED2)
-    if c[3] == "1":
+    if counter[0] == "1":
         turnOn(LED3)
     else:
         turnOff(LED3)
@@ -50,104 +52,163 @@ def forCounting(count):
 def callback( ch, method, properties, body ): 
     print " [x] Received %r" % (body,)
 
-count = 0;
-#make shelf
-#s = shelve.open('bottle!')
-
-#end make shelf
-
+count = 0
 
 def on_request(ch, method, props, body):
     print " [x] Received %r" % (body) 
     
     return_properties = pika.BasicProperties(correlation_id=props.correlation_id)
 
-    s = shelve.open('bottle!')
-#Below is putting the message recieved into a dictionary entry
-
+    s = shelve.open('bottle_database.db', writeback = True)
 
     print "Body: ", body
 
     dict = json.loads(body)
-
-    #dictionary = body;
-    print "DICTIONARY: ", dict['Author']
+    global send_message_list_of_dic
+    send_message_list_of_dic = []
+    returnlist = []
 
     if dict['Action'] == "push":
         global count
-        #count = count + 1;
-        print "count: ", count
-        #forCounting(count)
-        key = str(count)
+
+        k = dict['MsgID']
+        kstr = ast.literal_eval(json.dumps(k))
         count = count + 1
-        send_message_list_of_dic = []
         try:
-            s[key]=dict
+             s[kstr] = dict
+             forCounting(count)
         finally:
-            s.close()
+             dict['Status'] = "Success"
+             returnlist.append(dict)
+             s.close()
     elif dict['Action'] == "pull":
+        if count == 0:
+            print "Nothing to pull!"
+            
         try:
-            age = dict['Age']
-            message = dict['Message']
-            subject = dict['Subject']
-            author = dict['Author']
-        
+            age = dict.get('Age','')
+            message = dict.get('Message','')
+            subject = dict.get('Subject','')
+            author = dict.get('Author','')
+
             returnlist = []
             rlcount = 0
 
-            #count = count - 1
-            #error checking for count?
             klist = list(s.keys())
+
             for i in range(0,len(klist)):
-                rlcount = 0
+                r = s[klist[i]]
+                testdict = ast.literal_eval(json.dumps(r))
                 #test for qualities
-                if klist[i]['Author'] == author:
+                if testdict['Author'] == author:
                     #put into list to return to client
-                    returnlist.append(klist[i])
+                    returnlist.append(testdict)
                     rlcount = 1
-                    del dict[author]
-                if klist[i]['Subject'] == subject:
+                    count = count - 1
+                    del s[klist[i]]
+                if testdict['Subject'] == subject:
                     #put into list to return to client
-                    if rlcount != 1:
-                        returnlist.append(klist[i])
-                        rlcount = 1
-                if klist[i]['Message'] == message:
+                    returnlist.append(testdict)
+                    rlcount = 1
+                    count = count - 1
+                    del s[klist[i]]
+                if testdict['Message'] == message:
                     #put into list to return to client
-                    if rlcount != 1:
-                        returnlist.append(klist[i])
-            
+                    returnlist.append(testdict)
+                    count = count - 1
+                    del s[klist[i]]
+                if testdict['Age'] == age:
+                    returnlist.append(testdict)
+                    count = count - 1
+                    del s[klist[i]]
                 greater = '>'
                 less = '<'
-                #if greater in klist[i]['Age']:
-            
-                for i in range (0,len(klist)):
-                    send_message_list_of_dic[i] = json.loads(klist[i])    
+                if greater in age:
+                    agefix = age.replace(">","")
+                    a = int(agefix)
+                    storea = testdict['Age']
+                    istorea = int(storea)
+                    if istorea > a:
+                        returnlist.append(testdict)
+                        del s[klist[i]]
+                        count = count - 1
+                if less in age:
+                    agefix = age.replace("<","")
+                    a = int(agefix)
+                    storea = testdict['Age']
+                    istorea = int(storea)
+                    if istorea < a:
+                        returnlist.append(testdict)
+                        del s[klist[i]]
+                        count = count - 1
+                    
+            forCounting(count)
         finally:
-             s.close()
-#    elif dict['Action'] == "pullr":
+              s.close()
+
+    elif dict['Action'] == "pullr":
         #copy instead of remove
+        try:
+            age = dict.get('Age','')
+            message = dict.get('Message','')
+            subject = dict.get('Subject','')
+            author = dict.get('Author','')
+
+            returnlist = []
+            rlcount = 0
+
+            klist = list(s.keys())
+
+            for i in range(0,len(klist)):
+                r = s[klist[i]]
+                testdict = ast.literal_eval(json.dumps(r))
+                #test for qualities
+                if testdict['Author'] == author:
+                    #put into list to return to client
+                    returnlist.append(testdict)
+                    rlcount = 1
+                    count = count - 1
+                if testdict['Subject'] == subject:
+                    #put into list to return to client
+                    returnlist.append(testdict)
+                    rlcount = 1
+                    count = count - 1
+                if testdict['Message'] == message:
+                    #put into list to return to client
+                    returnlist.append(testdict)
+                    count = count - 1
+                if testdict['Age'] == age:
+                    returnlist.append(testdict)
+                    count = count - 1
+                greater = '>'
+                less = '<'
+                if greater in age:
+                    agefix = age.replace(">","")
+                    a = int(agefix)
+                    storea = testdict['Age']
+                    istorea = int(storea)
+                    if istorea > a:
+                        returnlist.append(testdict)
+                        count = count - 1
+                if less in age:
+                    agefix = age.replace("<","")
+                    a = int(agefix)
+                    storea = testdict['Age']
+                    istorea = int(storea)
+                    if istorea < a:
+                        returnlist.append(testdict)
+                        count = count - 1
+
+            forCounting(count)
+        finally:
+              s.close()
+              print "done copy"
     else:
         print "Action is incorrect."
     
-
 #end my code
 
-    
-
-    ##### KARA WHEN YOU SEND DTAT BACK SEND IT IN THIS FORMAT ########
-    # FIRST MAKE A QUIRY FOR THE DATA (in this case I am quirying 
-#    query_data_one = json.loads(body)
-#    query_data_two = json.loads(body)
-#    query_data_three = json.loads(body)
-#    query_data_four = json.loads(body)
-
-    # SECOND MAKE A LIST OF THE DICTIONARY (if no quereys found make a empty list
-#    send_message_list_of_dic = [query_data_one, query_data_two, query_data_three, query_data_four]
-    #send_message_list_of_dic = []
-    
-    # FINALLY DO A JSON.DUMPS ON THE LIST OF DICTIONARIES AND THEN SEND IT
-    send_message_json = json.dumps(send_message_list_of_dic)
-    
+    send_message_json = json.dumps(returnlist)   
     ch.basic_publish(exchange='', routing_key=props.reply_to, properties=return_properties, body=send_message_json)
     
     ch.basic_ack(delivery_tag=method.delivery_tag)
